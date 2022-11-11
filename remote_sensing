@@ -19,7 +19,6 @@ plot(p224r63_2011)
 cl <- colorRampPalette(c('black','grey','light grey'))(100) # 
 plot(p224r63_2011, col=cl)
 
-
 par(mfrow=c(2,2))
 
 clb <- colorRampPalette(c('dark blue','blue','light blue'))(100) # 
@@ -31,8 +30,14 @@ plot(p224r63_2011$B2_sre, col=clg)
 clr <- colorRampPalette(c('dark red','red','pink'))(100) # 
 plot(p224r63_2011$B3_sre, col=clr)
 
+# Multiframe with 4 images (2x2)
+
+par(mfrow = c(2, 2))
+plot(p224r63_2011[[1:4]], col = cl)
+
 # Exercise: plot the final band, namely the NIR, band number 4
 # red, orange, yellow
+
 clnir <- colorRampPalette(c('red','orange','yellow'))(100) # 
 plot(p224r63_2011$B4_sre, col=clnir)
 
