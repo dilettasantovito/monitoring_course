@@ -1,3 +1,7 @@
+#### Lab ####
+
+setwd("C:/Users/dilet/Documents/lab")
+
 # R code for remote sensing data analysis in ecosystem monitoring
 
 library(raster)
@@ -5,10 +9,6 @@ library(RStoolbox)
 
 # no library?
 # install.packages(c("raster","RStoolbox"))
-
-setwd("~/lab/") # Linux
-# setwd("C:/lab/")  # windows
-# setwd("/Users/name/lab/") # mac
 
 p224r63_2011 <- brick("p224r63_2011_masked.grd")
 
@@ -19,9 +19,15 @@ plot(p224r63_2011)
 cl <- colorRampPalette(c('black','grey','light grey'))(100) # 
 plot(p224r63_2011, col=cl)
 
-par(mfrow=c(2,2))
+# Plotting one band
 
-clb <- colorRampPalette(c('dark blue','blue','light blue'))(100) # 
+plot(p224r63_2011$B1_sre, col = cl)
+plot(p224r63_2011[[1]], col = cl) # using the position
+plot(p224r63_2011$B1_sre, col = clb) # scale of blue
+
+par(mfrow=c(1,2))
+
+clb <- colorRampPalette(c('dark blue','blue','light blue'))(100)
 plot(p224r63_2011$B1_sre, col=clb)
 
 clg <- colorRampPalette(c('dark green','green','light green'))(100) # 
@@ -34,7 +40,7 @@ plot(p224r63_2011$B3_sre, col=clr)
 
 par(mfrow = c(2, 2))
 plot(p224r63_2011[[1:4]], col = cl)
-
+    
 # Exercise: plot the final band, namely the NIR, band number 4
 # red, orange, yellow
 
@@ -57,3 +63,68 @@ plotRGB(p224r63_2011, r=3, g=2, b=1, stretch="Lin")
 plotRGB(p224r63_2011, r=4, g=3, b=2, stretch="Lin")
 plotRGB(p224r63_2011, r=3, g=4, b=2, stretch="Lin")
 plotRGB(p224r63_2011, r=3, g=2, b=4, stretch="Lin")
+
+#### Back in time ####
+
+#setwd("C:/Users/dilet/Documents/lab")
+#library(raster)
+
+p224r63_1988 <- brick("p224r63_1988_masked.grd")
+p224r63_1988
+#p224r63_2011 <- brick("p224r63_2011_masked.grd")
+#p224r63_2011
+
+plotRGB(p224r63_1988, r = 3, g = 2, b = 1, stretch = "lin") # image in natural colors
+# it's difficult to tell vegetated areas from unvegetated areas
+# Band number 4 (infrared?) is the most important for vegetation
+plotRGB(p224r63_1988, r = 4, g = 3, b = 2, stretch = "lin")
+plotRGB(p224r63_1988, r = 3, g = 4, b = 2, stretch = "lin") # violet = soil, green = forest
+# The humans were opening the first streets in 1988
+
+# Exercise: make a multiframe with two rows and one column plotting the 1988 and
+# 2011 images
+
+par(mfrow = c(2, 1))
+
+plotRGB(p224r63_1988, r = 3, g = 4, b = 2, stretch = "lin")
+plotRGB(p224r63_2011, r = 3, g = 4, b = 2, stretch = "lin")
+
+# Multi-temporal analysis: to compare different situations in time
+# Map algebra: image in 1988 - image in 2011, you can do that pixel by pixel
+
+# Calculating the difference between images: multitemporal analysis
+
+difnir <- p224r63_1988[[4]] - p224r63_2011[[4]] # difference in the near infrared,
+# for each pixel
+
+clc <- colorRampPalette(c('red','yellow','black'))(100) # green = small differences,
+# blue = medium differences, yellow = high differences
+
+plot(difnir, col = clc)
+
+#### Difference Vegetation Index ####
+
+# DVI = difference between infrared and red, difference vegetation index
+# Plants reflect a lot in the near infrared and absorb a lot in the red
+# If a plant is suffering or has been cut, the values in the infrared will become lower
+# while the red will increase, since the plant won't be able to do photosynthesis
+# DVI lets you know the health status of plants in time
+
+# Recent DVI (2011)
+
+dvi2011 <- p224r63_2011[[4]] - p224r63_2011[[3]] # 4th band = infrared, 3rd band = red
+plot(dvi2011) # green parts are those where there's a higher amount of healthy vegetation
+
+# pure water = small values of dvi, water + soil = water doesn't reflect that much
+# because there are organisms inside
+
+dvi1988 <- p224r63_1988[[4]] - p224r63_1988[[3]]
+plot(dvi1988)
+
+#par(mfrow = c(2, 1))
+
+difdvi <- dvi1988 - dvi2011
+cld <- colorRampPalette(c('blue','white','red'))(100)
+plot(difdvi, col = cld) # parts becoming red = loss in healthy vegetation, 
+# blue = increase in healthy vegetation
+
